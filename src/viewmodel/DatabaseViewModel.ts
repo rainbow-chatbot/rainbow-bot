@@ -9,7 +9,7 @@ export class DatabaseViewModel {
 
   updateChatDb = (messages: Message[]) => {
     this.chatDb.insert(messages, (error: Error | null, _: Message[]) => {
-      if (error == null) {
+      if (error == null && error != undefined) {
         ErrorUtil.instance().sendError(error!.message)
       }
     });

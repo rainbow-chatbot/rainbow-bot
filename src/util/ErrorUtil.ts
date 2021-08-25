@@ -17,6 +17,11 @@ export class ErrorUtil {
     }
   }
 
+  init = (mainChannel: TalkChannel, me: DisplayUserInfo) => {
+    this.mainChannel = mainChannel;
+    this.me = me;
+  }
+
   static instance = (): ErrorUtil => {
     return ErrorUtil._instance;
   }

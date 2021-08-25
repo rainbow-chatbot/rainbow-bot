@@ -1,13 +1,18 @@
-import {AuthApiClient, TalkClient} from 'node-kakao';
+import {AuthApiClient, Long, TalkClient} from 'node-kakao';
 import {Bot} from "./util/Bot";
 import {BotData} from "./secret/BotData";
 import {DatabaseViewModel} from "./viewmodel/DatabaseViewModel";
 import {Time} from "./model/Time";
 import {Message} from "./model/Message";
+import {ErrorUtil} from "./util/ErrorUtil";
 
 const client = new TalkClient();
 const dbVm = DatabaseViewModel.instance();
+const MANAGER_CHANNEL_ID = Long.fromString("302081716053163");
+const MANAGER_USER_ID = Long.fromString("361584376");
+
 let messages: Message[] = [];
+let errorUtilInit = false;
 
 dbVm.init();
 
@@ -18,10 +23,16 @@ client.on('chat', async (data, channel) => {
   const date = new Date();
   const time = new Time(date.getFullYear(), date.getMonth(), date.getDay(), "todo", date.getHours(), date.getMinutes(), date.getSeconds());
   const message = new Message(data.text, time, sender.userId);
-  messages.push(message)
+  messages.push(message);
+
+  if (channel.channelId == MANAGER_CHANNEL_ID && sender.userId == MANAGER_USER_ID && !errorUtilInit) {
+    ErrorUtil.instance().init(channel, sender);
+    errorUtilInit = true;
+    Bot.replyToChannel(channel, 'ErrorUtil 정보 등록 완료')
+  }
 
   if (data.text === '!test') {
-    Bot.replyToChannel(channel, "Hi!")
+    Bot.replyToChannel(channel, 'Hi!')
   }
 
   if (data.text === '!db압축') {
