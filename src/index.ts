@@ -54,6 +54,15 @@ client.on('chat', async (data, channel) => {
     console.log(channel, data, sender);
     Bot.replyToChannel(channel, debugContent);
   }
+
+  if (data.text === '!내메시지') {
+    const messages = await dbVm.findMessagesFromChatDb({senderId: sender.userId}).then();
+    if (messages.fail) {
+      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${messages.fail.message}`)
+    } else {
+      Bot.replyToChannel(channel, `내 메시지\n\n${messages.success!.map((message) => message.toString()).join("\n")}`)
+    }
+  }
 });
 
 const login = async () => {
