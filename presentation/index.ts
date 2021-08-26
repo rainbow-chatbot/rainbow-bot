@@ -2,7 +2,7 @@ import {AuthApiClient, Long, TalkChannel, TalkChatData, TalkClient} from 'node-k
 import {Bot} from "./util/Bot";
 import {BotData} from "./secret/BotData";
 import {DatabaseViewModel} from "./viewmodel/DatabaseViewModel";
-import {Message} from "../domain/model/Message";
+import {Chat} from "../domain/model/Chat";
 import {ErrorUtil} from "./util/ErrorUtil";
 
 const client = new TalkClient();
@@ -10,7 +10,7 @@ const dbVm = DatabaseViewModel.instance();
 const MANAGER_CHANNEL_ID = Long.fromString("302081716053163");
 const MANAGER_USER_ID = Long.fromString("361584376");
 
-let messages: Message[] = [];
+let messages: Chat[] = [];
 let errorUtilInit = false;
 
 dbVm.init();
@@ -24,7 +24,7 @@ client.on('chat', async (data: TalkChatData, channel: TalkChannel) => {
   const sender = data.getSenderInfo(channel);
   if (!sender) return;
 
-  messages.push(Message.parse(data, sender));
+  messages.push(Chat.parse(data, sender));
 
   if (messages.length == 100) {
     updateChatDatabase();

@@ -1,8 +1,8 @@
-export class Result<T, F> {
-  success: T;
+export class Result<S, F> {
+  success: S;
   fail: F;
 
-  constructor(success: T, fail: F) {
+  constructor(success: S, fail: F) {
     this.success = success;
     this.fail = fail;
   }

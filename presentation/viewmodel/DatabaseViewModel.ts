@@ -1,4 +1,4 @@
-import {Message} from "../../domain/model/Message";
+import {Chat} from "../../domain/model/Chat";
 import {ErrorUtil} from "../util/ErrorUtil";
 import {Result} from "../../domain/model/common/Result";
 import Nedb = require("nedb");
@@ -8,13 +8,13 @@ export class DatabaseViewModel {
 
   chatDb: Nedb = new Nedb({filename: 'presentation/database/chat.json', autoload: true});
 
-  updateChatDb = (messages: Message[]) => {
+  updateChatDb = (messages: Chat[]) => {
     this.chatDb.insert(messages, this.errorHandler);
   }
 
-  findMessagesFromChatDb = async (query: any): Promise<Result<Message[] | null, Error | any | null>> => {
+  findMessagesFromChatDb = async (query: any): Promise<Result<Chat[] | null, Error | any | null>> => {
     return new Promise((resolve, reject) => {
-      this.chatDb.find(query, (error: Error | null, messages: Message[]) => {
+      this.chatDb.find(query, (error: Error | null, messages: Chat[]) => {
         if (error) {
           reject(new Result(null, error!));
         } else {
