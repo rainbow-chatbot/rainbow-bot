@@ -4,6 +4,7 @@ import {BotData} from "./secret/BotData";
 import {DatabaseViewModel} from "./viewmodel/DatabaseViewModel";
 import {Chat} from "../domain/model/Chat";
 import {ErrorUtil} from "./util/ErrorUtil";
+import {Client} from "../data/client/Client";
 
 const client = new TalkClient();
 const dbVm = DatabaseViewModel.instance();
@@ -59,12 +60,27 @@ client.on('chat', async (data: TalkChatData, channel: TalkChannel) => {
     Bot.replyToChannel(channel, debugContent);
   }
 
-  if (data.text === '!내메시지') {
-    const messages = await dbVm.findMessagesFromChatDb({senderId: sender.userId}).then();
-    if (messages.fail) {
-      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${messages.fail.message}`);
+  if (data.text === '!내채팅') {
+    const chatsResult = await dbVm.findChatsFromChatDb({senderId: sender.userId}).then();
+    if (chatsResult.success) {
+      const chats = chatsResult.success!
+      const request = await Client.postUserChat(chats[chats.length - 1]);
+      if (request.success) {
+        Bot.replyToChannel(channel, request.success!);
+      } else {
+        Bot.replyToChannel(channel, `서버 요청 실패\n\n${request.fail!.message}`);
+      }
     } else {
-      const messagesString = messages.success!.map((message) => `- ${message.message}`);
+      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${chatsResult.fail!.message}`);
+    }
+  }
+
+  if (data.text === '!내메시지') {
+    const chats = await dbVm.findChatsFromChatDb({senderId: sender.userId}).then();
+    if (chats.fail) {
+      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${chats.fail!.message}`);
+    } else {
+      const messagesString = chats.success!.map((chat) => `- ${chat.message}`);
       if (messagesString.length == 0) {
         messagesString.push('DB에 조회된 메시지가 없어요! ㅠㅠ\n`!db업데이트` 후 다시 시도해 보세요 :)');
       }

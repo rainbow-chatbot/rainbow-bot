@@ -12,7 +12,7 @@ export class DatabaseViewModel {
     this.chatDb.insert(messages, this.errorHandler);
   }
 
-  findMessagesFromChatDb = async (query: any): Promise<Result<Chat[] | null, Error | any | null>> => {
+  findChatsFromChatDb = async (query: any): Promise<Result<Chat[] | null, Error | any | null>> => {
     return new Promise((resolve, reject) => {
       this.chatDb.find(query, (error: Error | null, messages: Chat[]) => {
         if (error) {
