@@ -1,10 +1,11 @@
 import {TestDatabaseViewModel} from "./viewmodel/TestDatabaseViewModel";
 import {TestClient} from "./client/TestClient";
+import {Message} from "../domain/model/Message";
 
 const dbVm = new TestDatabaseViewModel();
 
 const main = async () => {
-  TestClient.postUserChatList('hello world!');
+  TestClient.postUserChat(Message.create('hi, world!'));
 }
 
 main().then();
