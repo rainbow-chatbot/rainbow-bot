@@ -1,9 +1,8 @@
-import {AuthApiClient, Long, TalkClient} from 'node-kakao';
+import {AuthApiClient, Long, TalkChannel, TalkChatData, TalkClient} from 'node-kakao';
 import {Bot} from "./util/Bot";
 import {BotData} from "./secret/BotData";
 import {DatabaseViewModel} from "./viewmodel/DatabaseViewModel";
-import {Time} from "./model/Time";
-import {Message} from "./model/Message";
+import {Message} from "../domain/model/Message";
 import {ErrorUtil} from "./util/ErrorUtil";
 
 const client = new TalkClient();
@@ -16,14 +15,20 @@ let errorUtilInit = false;
 
 dbVm.init();
 
-client.on('chat', async (data, channel) => {
+const updateChatDatabase = () => {
+  dbVm.updateChatDb(messages);
+  messages = [];
+}
+
+client.on('chat', async (data: TalkChatData, channel: TalkChannel) => {
   const sender = data.getSenderInfo(channel);
   if (!sender) return;
 
-  const date = new Date();
-  const time = new Time(date.getFullYear(), date.getMonth(), date.getDay(), "todo", date.getHours(), date.getMinutes(), date.getSeconds());
-  const message = new Message(data.text, time, sender.userId);
-  messages.push(message);
+  messages.push(Message.parse(data, sender));
+
+  if (messages.length == 100) {
+    updateChatDatabase();
+  }
 
   if (channel.channelId == MANAGER_CHANNEL_ID && sender.userId == MANAGER_USER_ID && !errorUtilInit) {
     ErrorUtil.instance().init(channel, sender);
@@ -41,9 +46,8 @@ client.on('chat', async (data, channel) => {
   }
 
   if (data.text === '!db업데이트') {
-    dbVm.updateChatDb(messages);
+    updateChatDatabase();
     Bot.replyToChannel(channel, 'DB 업데이트 완료');
-    messages = [];
   }
 
   if (data.text === '!debug') {
@@ -58,9 +62,13 @@ client.on('chat', async (data, channel) => {
   if (data.text === '!내메시지') {
     const messages = await dbVm.findMessagesFromChatDb({senderId: sender.userId}).then();
     if (messages.fail) {
-      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${messages.fail.message}`)
+      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${messages.fail.message}`);
     } else {
-      Bot.replyToChannel(channel, `내 메시지\n\n${messages.success!.map((message) => message.toString()).join("\n")}`)
+      const messagesString = messages.success!.map((message) => `- ${message.message}`);
+      if (messagesString.length == 0) {
+        messagesString.push('DB에 조회된 메시지가 없어요! ㅠㅠ\n`!db업데이트` 후 다시 시도해 보세요 :)');
+      }
+      Bot.replyToChannel(channel, `내 메시지\n\n${messagesString.join('\n')}`);
     }
   }
 });

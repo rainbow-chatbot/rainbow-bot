@@ -7,6 +7,7 @@ export class ErrorUtil {
   private me: DisplayUserInfo | null = null;
 
   sendError = (errorMessage: string) => {
+    console.error(errorMessage);
     if (this.checkNullable()) {
       this.mainChannel!.sendChat(
         new ChatBuilder()

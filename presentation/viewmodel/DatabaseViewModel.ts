@@ -1,12 +1,12 @@
-import {Message} from "../model/Message";
+import {Message} from "../../domain/model/Message";
 import {ErrorUtil} from "../util/ErrorUtil";
-import {Result} from "../model/Result";
+import {Result} from "../../domain/model/common/Result";
 import Nedb = require("nedb");
 
 export class DatabaseViewModel {
   private static _instance = new DatabaseViewModel();
 
-  chatDb: Nedb = new Nedb({filename: 'src/database/chat.json', autoload: true});
+  chatDb: Nedb = new Nedb({filename: 'presentation/database/chat.json', autoload: true});
 
   updateChatDb = (messages: Message[]) => {
     this.chatDb.insert(messages, this.errorHandler);
@@ -14,15 +14,11 @@ export class DatabaseViewModel {
 
   findMessagesFromChatDb = async (query: any): Promise<Result<Message[] | null, Error | any | null>> => {
     return new Promise((resolve, reject) => {
-      this.chatDb.find(query, this.errorHandler).exec((error: Error | null, messages: Message[]) => {
-        try {
-          if (error) {
-            reject(new Result(null, error));
-          } else {
-            resolve(new Result(messages, null));
-          }
-        } catch (exception) {
-          reject(new Result(null, exception));
+      this.chatDb.find(query, (error: Error | null, messages: Message[]) => {
+        if (error) {
+          reject(new Result(null, error!));
+        } else {
+          resolve(new Result(messages, null));
         }
       });
     });

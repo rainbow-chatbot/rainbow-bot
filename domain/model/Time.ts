@@ -1,4 +1,6 @@
 export class Time {
+  private static WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
+
   year: number;
   month: number;
   day: number;
@@ -15,5 +17,9 @@ export class Time {
     this.hour = hour;
     this.minute = minute;
     this.second = second;
+  }
+
+  static parse = (date: Date): Time => {
+    return new Time(date.getFullYear(), date.getMonth() + 1, date.getDate(), Time.WEEKDAY[date.getDay()], date.getHours(), date.getMinutes(), date.getSeconds());
   }
 }
