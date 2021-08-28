@@ -1,6 +1,6 @@
 import {AuthApiClient, KnownAuthStatusCode} from 'node-kakao';
-import * as readline from 'readline';
 import {BotData} from "../secret/BotData";
+import * as readline from "readline";
 
 // https://github.com/storycraft/node-kakao/blob/stable/examples/device-registration.ts
 const main = async () => {

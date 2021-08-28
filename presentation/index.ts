@@ -61,12 +61,12 @@ client.on('chat', async (data: TalkChatData, channel: TalkChannel) => {
   }
 
   if (data.text === '!내채팅') {
-    const chatsResult = await dbVm.findChatsFromChatDb({senderId: sender.userId}).then();
+    const chatsResult = await dbVm.findChatsFromChatDb({senderId: sender.userId});
     if (chatsResult.success) {
-      const chats = chatsResult.success!
+      const chats = chatsResult.success
       const request = await Client.postUserChat(chats[chats.length - 1]);
       if (request.success) {
-        Bot.replyToChannel(channel, request.success!);
+        Bot.replyToChannel(channel, request.success);
       } else {
         Bot.replyToChannel(channel, `서버 요청 실패\n\n${request.fail!.message}`);
       }
@@ -76,9 +76,9 @@ client.on('chat', async (data: TalkChatData, channel: TalkChannel) => {
   }
 
   if (data.text === '!내메시지') {
-    const chats = await dbVm.findChatsFromChatDb({senderId: sender.userId}).then();
+    const chats = await dbVm.findChatsFromChatDb({senderId: sender.userId});
     if (chats.fail) {
-      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${chats.fail!.message}`);
+      Bot.replyToChannel(channel, `메시지 조회 실패\n\n${chats.fail.message}`);
     } else {
       const messagesString = chats.success!.map((chat) => `- ${chat.message}`);
       if (messagesString.length == 0) {

@@ -1,6 +1,7 @@
 import {Chat} from "../../domain/model/Chat";
 import {ErrorUtil} from "../util/ErrorUtil";
 import {Result} from "../../domain/model/common/Result";
+import {Exception} from "../../domain/model/common/Exception";
 import Nedb = require("nedb");
 
 export class DatabaseViewModel {
@@ -12,13 +13,13 @@ export class DatabaseViewModel {
     this.chatDb.insert(messages, this.errorHandler);
   }
 
-  findChatsFromChatDb = async (query: any): Promise<Result<Chat[] | null, Error | any | null>> => {
+  findChatsFromChatDb = async (query: any): Promise<Result<Chat[]>> => {
     return new Promise((resolve, reject) => {
       this.chatDb.find(query, (error: Error | null, messages: Chat[]) => {
         if (error) {
-          reject(new Result(null, error!));
+          reject(Result.fail(new Exception(error!.message)));
         } else {
-          resolve(new Result(messages, null));
+          resolve(Result.success(messages));
         }
       });
     });

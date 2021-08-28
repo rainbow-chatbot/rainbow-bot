@@ -1,5 +1,4 @@
 export enum ChatType {
-  FEED = 0,
   TEXT = 1,
   PHOTO = 2,
   VIDEO = 3,
